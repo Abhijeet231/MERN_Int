@@ -26,6 +26,17 @@ const agentSchema = new mongoose.Schema({
     required: [true, "Password is required"],
     minlength: [5, "Password must be at least 5 characters long"],
   },
+    toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
+
+// Virtual field to populate agent's assigned contacts
+agentSchema.virtual("assignedTask", {
+  ref:"DistList",
+  localField: "_id",
+  foreignField: "agentId",
+} );
+
+
 
 export const Agent = mongoose.model("Agent", agentSchema);

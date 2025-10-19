@@ -22,7 +22,7 @@ const distListSchema = new mongoose.Schema({
   },
   notes: {
     type: String, 
-    default: "",
+    default: ""
     
   }
 
@@ -30,3 +30,4 @@ const distListSchema = new mongoose.Schema({
 
 export const DistList = mongoose.model('DistList', distListSchema);
 
+//
