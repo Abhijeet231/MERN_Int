@@ -29,5 +29,3 @@ const distListSchema = new mongoose.Schema({
 });
 
 export const DistList = mongoose.model('DistList', distListSchema);
-
-//
