@@ -1,4 +1,4 @@
-import { Agent } from "../models/agent.model";
+import { Agent } from "../models/agent.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -13,7 +13,7 @@ export const createAgent = asyncHandler(async (req, res) => {
   }
 
   //Trim and lowercase for consistency
-  const trimmedEmail = email.trim().toLowercase();
+  const trimmedEmail = email.trim().toLowerCase();
   const trimmedName = name.trim();
   const trimmedMobile = mobile.trim();
 
@@ -23,12 +23,16 @@ export const createAgent = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Agent already exists");
   }
 
+  // Fetching logged-in user 
+  const currUserId = req.user._id;
+
   //Creating new agent
   const newAgent = await Agent.create({
     name: trimmedName,
     email: trimmedEmail,
     mobile: trimmedMobile,
-    password: password,
+    password,
+    userId: currUserId
   });
 
   //Sending response with all agent info including password
@@ -38,17 +42,19 @@ export const createAgent = asyncHandler(async (req, res) => {
     email: newAgent.email,
     mobile: newAgent.mobile,
     password: newAgent.password,
+    userId: newAgent.userId,
+    
   };
 
   //sending Success response
   return res
     .status(201)
-    .json(new ApiResponse(201, agentData, "Agent created successfully"));
+    .json(new ApiResponse(201, {agent: agentData}, "Agent created successfully"));
 });
 
-//Get all agents with their assigned tasks
+//Get all agents with their assigned tasks FOR FEATURE
 export const getAllAgents = asyncHandler(async (req, res) => {
-  // Fetch all agnets and populate their assigned tasks
+  // Fetch all agents and populate their assigned tasks
   const agents = await Agent.find().populate("assignedTask");
 
   //Check if agents array is empty

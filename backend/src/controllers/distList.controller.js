@@ -1,4 +1,4 @@
-import csv from "csv-parser";
+import XLSX from "xlsx";
 import { Agent } from "../models/agent.model.js";
 import { DistList } from "../models/distList.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -7,75 +7,76 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 
 
-//Node's stream utility
-import { Readable } from "stream";
+export const uploadAndDistribute = asyncHandler(async (req, res) => {
+  //  Ensure a file is uploaded
+  if (!req.file) {
+    throw new ApiError(400, "No file uploaded");
+  }
 
+  // Validate file type
+  const validExtensions = [".csv", ".xlsx", ".xls"];
+  const ext = req.file.originalname
+    .slice(req.file.originalname.lastIndexOf("."))
+    .toLowerCase();
 
-export const uploadAndDistribute = asyncHandler ( async(req,res) => {
-    
-    // Check if file is uploaded 
-    if(!req.file) {
-        throw new ApiError(400, "No Csv file uploaded");
-    }
+  if (!validExtensions.includes(ext)) {
+    throw new ApiError(400, "Invalid file format. Only CSV, XLSX, and XLS are allowed.");
+  }
 
-    const results = [];
+  // R3ead and parse the file using SheetJS
+  const mainFile = XLSX.read(req.file.buffer, { type: "buffer" });
 
-    //Convert buffer to redable stream and parse csv
-    const redable = Readable.from(req.file.buffer);
+  // Get the first worksheet
+  const sheetName = mainFile.SheetNames[0];
+  const sheet = mainFile.Sheets[sheetName];
 
-    await new Promise((resolve,reject) => {
-        redable
-        .pipe(csv())
-        .on("data", (row) => {
-            //validate basic structure
-            if(!row.firstName || !row.phone) return;
+  // Converting sheets to json
+  const rows = XLSX.utils.sheet_to_json(sheet, {defval: ""});
 
-            results.push({
-                firstName: row.firstName.trim(),
-                phone: row.phone.trim(),
-                notes: row.notes? row.notes.trim() : "",
-            });
+  // Validate parsed data
+  if (!rows.length) {
+    throw new ApiError(400, "Uploaded file is empty or invalid format.");
+  }
 
-        })
-        .on("end", resolve)
-        .on("error", reject);
-    });
+  // Normalize and clean data
+  const cleanedData = rows
+    .filter(row => row.firstName && row.phone) // Must have these fields
+    .map(row => ({
+      firstName: String(row.firstName).trim(),
+      phone: String(row.phone).trim(),
+      notes: row.notes ? String(row.notes).trim() : "",
+    }));
 
-    //Validate parsed data
-    if(results.length === 0) {
-        throw new ApiError(400, "CSV is empty or invalid format");
-    }
+  if (cleanedData.length === 0) {
+    throw new ApiError(400, "No valid records found in uploaded file.");
+  }
 
-    //Fetch all agents
-    const allAgents = await Agent.find();
-    if(allAgents.length === 0) {
-        throw new ApiError(400, "No agents found to distribute lists");
-    }
+  //Fetch all agents from DB
+  const allAgents = await Agent.find();
+  if (allAgents.length === 0) {
+    throw new ApiError(400, "No agents found to distribute lists.");
+  }
 
-    //Distribut tasks among agents
-    const totalAgents = allAgents.length;
-    const distLists = [];
+  //Distribute records evenly among agents (round-robin)
+  const totalAgents = allAgents.length;
+  const distLists = cleanedData.map((row, index) => ({
+    ...row,
+    agentId: allAgents[index % totalAgents]._id, 
+  }));
 
-    results.forEach((row, index) => {
-        const agentIndex = index % totalAgents; 
-        distLists.push({
-            ...row,
-            agentId: allAgents[agentIndex]._id, //assigning agent Id before saving 
-        });
-    });
+  // Insert all records into DistList collection
+  await DistList.insertMany(distLists);
 
-    // Save all distributed records
-    await DistList.insertMany(distLists);
-
-    //Send success response
-    res.status(201).json(new ApiResponse(201, 
-        {
-            totalRecords: distLists.length,
-            agentsCount: totalAgents,
-            recordPerAgent: Math.floor(distLists.length / totalAgents),
-        },
-        "Csv uploaded and distributed successfully"
-     ))
-
-
-} );
+  // Send success response
+  return res.status(201).json(
+    new ApiResponse(
+      201,
+      {
+        totalRecords: distLists.length,
+        agentsCount: totalAgents,
+        recordPerAgent: Math.floor(distLists.length / totalAgents),
+      },
+      "File uploaded and distributed successfully"
+    )
+  );
+});

@@ -3,10 +3,11 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 //User Schema
-const userSchema = new mongoose.Schema({
+ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Name is required"],
+    trim: true
   },
   email: {
     type: String,
@@ -21,8 +22,18 @@ const userSchema = new mongoose.Schema({
     minlength: [5, "password must be at least 5 characters long"],
   },
   refreshToken: String,
+}, 
+{
+  toJSON: {virtuals: true},
+  toObject: {virtuals: true}
 });
 
+//Virtual: to get all agents created by this user
+userSchema.virtual("agents", {
+  ref: "Agent",
+  localField: "_id",
+  foreignField: "userId",
+})
 
 //Hashing password before saving
 userSchema.pre("save", async function (next) {

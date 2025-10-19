@@ -8,3 +8,4 @@ const router = Router();
 router.post('/',verifyJWT, createAgent); //Admin Creates agent
 router.get('/',verifyJWT, getAllAgents); // Fetch all agents with assigned tasks
 
+export default router;

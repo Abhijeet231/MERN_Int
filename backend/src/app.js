@@ -27,7 +27,7 @@ app.use("/api/v1/agents", agentRouter);
 
 //DistList routes
 import distListRouter from "./routes/distList.router.js";
-app.use("/api/v1/distlist/upload", distListRouter);
+app.use("/api/v1/distlist", distListRouter);
 
 
 export default app;
