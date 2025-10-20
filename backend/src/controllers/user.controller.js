@@ -3,6 +3,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import { Agent } from "../models/agent.model.js";
+import { DistList } from "../models/distList.model.js";
 
 // Function to generate AccessToken and RefreshToken
 const generateAccessAndRefreshToken = async (userId) => {
@@ -152,7 +154,39 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {currUser}, "Current user fetched"));
 });
 
-// Refresh Access Token
+// Delete User with all realted information
+export const deleteUser = asyncHandler(async(req,res) => {
+    const user = await User.findById(req.user._id);
+
+    if(!user) {
+      throw new ApiError(404, "user not found");
+    }
+
+    // fetching  all related info and deleting them
+     await Agent.deleteMany({userId: user._id});
+     await DistList.deleteMany({creatorId: user._id});
+
+    //Deleting the user
+    const deletedUser = await User.findByIdAndDelete(user._id);
+
+    //Clearing cookies
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict"
+    });
+
+      res.clearCookie("refreshToken", {
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+
+    return res.status(200).json(new ApiResponse(200, {}, "User Deleted Successfully"))
+   
+})
+
+// Refresh Access Token (currently not in use)
 export const refreshAccessToken = asyncHandler(async (req, res) => {
   //Getting refreshToken from cookies or request body
   const incomingRefreshToken =

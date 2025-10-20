@@ -23,7 +23,7 @@ export const uploadAndDistribute = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid file format. Only CSV, XLSX, and XLS are allowed.");
   }
 
-  // R3ead and parse the file using SheetJS
+  // Read and parse the file using SheetJS
   const mainFile = XLSX.read(req.file.buffer, { type: "buffer" });
 
   // Get the first worksheet
@@ -51,8 +51,8 @@ export const uploadAndDistribute = asyncHandler(async (req, res) => {
     throw new ApiError(400, "No valid records found in uploaded file.");
   }
 
-  //Fetch all agents from DB
-  const allAgents = await Agent.find();
+  //Fetch all agents from DB which are created by the current user
+  const allAgents = await Agent.find({userId: req.user._id});
   if (allAgents.length === 0) {
     throw new ApiError(400, "No agents found to distribute lists.");
   }

@@ -10,6 +10,28 @@ const AdminPage = () => {
   const [isUploading, setIsUploading] = useState(false); // Tracks upload state for the Ui
   const navigate = useNavigate();
 
+
+  //Handling user deletion
+  const handleDelete = async () => {
+    if(!window.confirm("You are about to loose all Information realted to USer")) return;
+
+    try {
+      await api.delete("/users/me");
+      toast.success("Account Deleted");
+      navigate("/auth");
+      //update the current user info here if needed 
+
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to Delete Account")
+      
+    }
+
+  };
+
+
+
+
   //Handle file change
   const handleFileChange = async (e) => {
     const uploadFile = e.target.files[0];
@@ -86,12 +108,35 @@ const AdminPage = () => {
               await logout();
               navigate("/auth");
             }}
-            className="mt-3 w-full bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2 rounded-lg shadow-md transition-colors duration-200 text-sm cursor-pointer"
+            className="w-full bg-amber-500 hover:bg-amber-600 text-white font-medium px-6 py-2 rounded-lg shadow-sm transition-all duration-200 text-sm cursor-pointer"
           >
             Logout
           </button>
+
+           {/* Delete Account Button */}
+        <button
+          onClick={async () => {
+            if (confirm("⚠️ Are you sure you want to permanently delete your account?")) {
+              try {
+                await api.delete("/users/me"); 
+                toast.success("Account deleted successfully");
+              
+                navigate("/auth");
+              } catch (err) {
+                toast.error("Error deleting account");
+                console.error(err);
+              }
+            }
+          }}
+          className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all duration-200 text-sm cursor-pointer"
+        >
+          Delete Account
+        </button>
         </div>
       </div>
+
+ 
+
 
       {/* Top Controls */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-10">
