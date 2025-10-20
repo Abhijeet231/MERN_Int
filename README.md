@@ -1,53 +1,59 @@
-## 🚀 Features
+## ⚙️ Setup Instructions
 
-## 👤 User Authentication
+## 1️⃣  Clone the Repository
+git clone https://github.com/Abhijeet231/MERN_Int.git
+cd MERN_Int
 
-Secure JWT authentication
-
-Login, register, logout and delete functionality
-
-Protected routes and cookies-based session management
-
-
-## 🧑‍💼 Agent Management
-
-Admin can create multiple agents
-
-Each agent is linked to the creator admin
-
-Agents display the number of tasks assigned
-
-##  📁 CSV Upload & Task Distribution
-
-Upload files in .csv, .xlsx, or .xls formats
-
-Validate and clean data before saving
-
-Distribute uploaded data equally among agents (round-robin)
-
-Automatically links each record to its assigned agent and creator admin
+## 2️⃣ Setup Backend
+cd backend
+npm install
 
 
-## 🗑️ Data Cleanup
+Create a .env file inside the backend folder:
 
-When a user is deleted, all related agents and distribution lists are deleted automatically
+PORT=8000
+CORS_ORIGIN=http://localhost:5173
+MONGODB_URL=your_mongodb_connection_string_here
+ACCESS_TOKEN_SECRET=your_access_token_secret
+ACCESS_TOKEN_EXPIRY=1d
+REFRESH_TOKEN_SECRET=your_refresh_token_secret
+REFRESH_TOKEN_EXPIRY=5d
+NODE_ENV=development
 
-## 🧮 How Distribution Works 
+## ⚠️ Note: You need to create your own MongoDB Atlas database and update the .env file with your connection URI and JWT secrets.
 
-If 1 agent → gets all uploaded records.
+## 3️⃣ Setup Frontend
+cd ../frontend
+npm install
 
-If <5 agents → data is distributed using round-robin logic.
 
-If ≥5 agents → still distributed evenly (round-robin).
+Create a .env file inside the frontend folder:
 
-Remaining records (if not divisible equally) are distributed sequentially.
+VITE_APP_BASE_URL=http://localhost:8000/api/v1
 
-##  🧠 Edge case 
-Upload without agents → toast error prompting to create agents
 
-Deleting a user → cascades deletion of agents and distribution lists
+## 🚀 Execution Instructions
 
-Real-time toast messages for all actions (upload, errors, etc.)
+## 1️⃣ Run Backend
+cd backend
+npm run dev
+
+
+The backend will start on
+👉 http://localhost:8000
+
+## 2️⃣ Run Frontend
+cd ../frontend
+npm run dev
+
+
+The frontend will start on
+👉 http://localhost:5173
+ 
+## ✅ Open the App
+
+Visit http://localhost:5173
+ in your browser.
 
 ## 🎥 Demonstration Video
 

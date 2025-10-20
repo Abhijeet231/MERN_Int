@@ -6,10 +6,11 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
+// CreateAgentForm component
 const CreateAgentForm = () => {
   const navigate = useNavigate();
   const { refetchUser } = useAuth();
-
+  // setting up react hook form with zod validation
   const {
     register,
     handleSubmit,
@@ -18,11 +19,12 @@ const CreateAgentForm = () => {
   } = useForm({
     resolver: zodResolver(createAgentSchema),
   });
-
+  // form submission handler
   const onSubmit = async (data) => {
     try {
       const res = await api.post("/agents", data);
-      if (!res?.data?.data?.agentData) throw new Error("Error while creating agent");
+      if (!res?.data?.data?.agentData)
+        throw new Error("Error while creating agent");
 
       toast.success("Agent created successfully!");
       await refetchUser();
@@ -96,7 +98,9 @@ const CreateAgentForm = () => {
             className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.password && (
-            <p className="text-red-600 text-xs mt-1">{errors.password.message}</p>
+            <p className="text-red-600 text-xs mt-1">
+              {errors.password.message}
+            </p>
           )}
         </div>
 

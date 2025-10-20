@@ -6,11 +6,12 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext.jsx";
 
-
+// Register form component
 export default function RegisterForm() {
   const navigate = useNavigate();
-  const {login, refetchUser} = useAuth();
+  const { login, refetchUser } = useAuth();
 
+  // React hook form setup
   const {
     register,
     handleSubmit,
@@ -20,9 +21,10 @@ export default function RegisterForm() {
     resolver: zodResolver(registerSchema),
   });
 
+  // Form submission handler
   const onSubmit = async (data) => {
     try {
-      const res = await api.post("/users/register", data);
+      const res = await api.post("/users/register", data); // calling register api endpoint
 
       if (!res?.data?.data?.createdUser) throw new Error("Registration failed");
 
@@ -35,8 +37,8 @@ export default function RegisterForm() {
       };
 
       await login(loginData); // triggers AuthContext login
-      await refetchUser();
-      
+      await refetchUser(); // fetch updated user info
+
       reset();
       navigate("/dashboard");
     } catch (error) {
@@ -96,7 +98,6 @@ export default function RegisterForm() {
       {/* Submit Button */}
       <button
         type="submit"
-        
         disabled={isSubmitting}
         className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded transition mt-2 cursor-pointer"
       >

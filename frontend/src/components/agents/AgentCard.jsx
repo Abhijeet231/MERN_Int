@@ -1,26 +1,23 @@
 import { useEffect, useState } from "react";
 import { api } from "@/utils/api";
 
-
+// AgentCard Component
 const AgentCard = ({ data }) => {
   // data comes from AdminPage { _id, name, email, mobile }
   const [agent, setAgent] = useState(data);
-
 
   useEffect(() => {
     // if no data passed (edge case), fetch from API
     if (!data?._id) return;
     const fetchAgent = async () => {
       try {
-        const res = await api.get(`/agents/${data._id}`);
+        const res = await api.get(`/agents/${data._id}`); // Fetch agent by Id
         setAgent(res.data?.data?.agent);
-        
       } catch (error) {
         console.error("Error fetching agent:", error);
       }
     };
     fetchAgent();
-    
   }, [data?._id]);
 
   if (!agent) return null;

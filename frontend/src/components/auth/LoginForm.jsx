@@ -5,10 +5,12 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext.jsx";
 
+//Login Form component
 export default function LoginForm() {
   const navigate = useNavigate();
-  const {login, refetchUser} = useAuth()
+  const { login, refetchUser } = useAuth(); // get login function and refetchUser from context
 
+  // Setting up react hook form with zod validation
   const {
     register,
     handleSubmit,
@@ -18,24 +20,20 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
+  // Form submission handler
   const onSubmit = async (data) => {
     try {
       const res = await login(data);
-
-      // if (!res?.data?.data?.loggedInUser) throw new Error("Invalid credentials");
-      console.log('Logged In User:', res);
-      
+      console.log("Logged In User:", res);
 
       toast.success("Logged in successfully!");
-      
-      await refetchUser();
 
-      reset();
-      navigate("/dashboard");
+      await refetchUser(); // Refetch User data after login
+
+      reset(); // Reset form fields
+      navigate("/dashboard"); // Navigate to dashboard
     } catch (error) {
-      toast.error(
-        error.message || "Login failed"
-      );
+      toast.error(error.message || "Login failed");
       console.error("Login error:", error);
     }
   };

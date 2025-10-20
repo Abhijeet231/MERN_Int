@@ -5,32 +5,29 @@ import AgentCard from "@/components/agents/AgentCard";
 import { toast } from "react-toastify";
 import { api } from "@/utils/api";
 
+// Admin page component
 const AdminPage = () => {
   const { currentUser, logout, refetchUser } = useAuth();
   const [isUploading, setIsUploading] = useState(false); // Tracks upload state for the Ui
   const navigate = useNavigate();
 
-
   //Handling user deletion
   const handleDelete = async () => {
-    if(!window.confirm("You are about to loose all Information realted to USer")) return;
+    if (
+      !window.confirm("You are about to loose all Information realted to USer")
+    )
+      return;
 
     try {
       await api.delete("/users/me");
       toast.success("Account Deleted");
       navigate("/auth");
-      //update the current user info here if needed 
-
+      //update the current user info here if needed
     } catch (error) {
       console.log(error);
-      toast.error("Failed to Delete Account")
-      
+      toast.error("Failed to Delete Account");
     }
-
   };
-
-
-
 
   //Handle file change
   const handleFileChange = async (e) => {
@@ -38,7 +35,7 @@ const AdminPage = () => {
     if (!uploadFile) return;
 
     //Checking if user has created any agents or not
-    if(!currentUser.agents || currentUser.agents.length <1){
+    if (!currentUser.agents || currentUser.agents.length < 1) {
       toast.error("No agents detected. Plese create agents first");
       return;
     }
@@ -62,7 +59,7 @@ const AdminPage = () => {
     try {
       setIsUploading(true);
       const res = await api.post("/distlist/upload", formData, {
-        headers: { "content-Type": "multipart/form-data" },
+        headers: { "content-Type": "multipart/form-data" }, // Setting up headers for file upload
       });
 
       toast.success("File Uploaded successfully");
@@ -74,7 +71,6 @@ const AdminPage = () => {
     } catch (error) {
       console.log(error);
       toast.error(error.message);
-
     } finally {
       setIsUploading(false);
     }
@@ -83,7 +79,7 @@ const AdminPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
       {/* Header*/}
-      
+
       <div className="w-full max-w-md flex flex-col items-center mb-10 space-y-4">
         <h1 className="text-3xl font-bold text-gray-800 tracking-wide">
           ADMIN DASHBOARD
@@ -113,30 +109,31 @@ const AdminPage = () => {
             Logout
           </button>
 
-           {/* Delete Account Button */}
-        <button
-          onClick={async () => {
-            if (confirm("⚠️ Are you sure you want to permanently delete your account?")) {
-              try {
-                await api.delete("/users/me"); 
-                toast.success("Account deleted successfully");
-              
-                navigate("/auth");
-              } catch (err) {
-                toast.error("Error deleting account");
-                console.error(err);
+          {/* Delete Account Button */}
+          <button
+            onClick={async () => {
+              if (
+                confirm(
+                  "⚠️ Are you sure you want to permanently delete your account?"
+                )
+              ) {
+                try {
+                  await api.delete("/users/me");
+                  toast.success("Account deleted successfully");
+
+                  navigate("/auth");
+                } catch (err) {
+                  toast.error("Error deleting account");
+                  console.error(err);
+                }
               }
-            }
-          }}
-          className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all duration-200 text-sm cursor-pointer"
-        >
-          Delete Account
-        </button>
+            }}
+            className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all duration-200 text-sm cursor-pointer"
+          >
+            Delete Account
+          </button>
         </div>
       </div>
-
- 
-
 
       {/* Top Controls */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-10">
