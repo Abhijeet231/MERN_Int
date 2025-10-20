@@ -35,6 +35,13 @@ userSchema.virtual("agents", {
   foreignField: "userId",
 })
 
+// Virtual field for created lists
+userSchema.virtual("distList", {
+  ref: "distList",
+  localField:"_id",
+  foreignField: "creatorId"
+})
+
 //Hashing password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

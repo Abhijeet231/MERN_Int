@@ -6,6 +6,11 @@ const distListSchema = new mongoose.Schema({
     ref: "Agent",
     required: true,
   },
+  creatorId: {
+   type: mongoose.Schema.Types.ObjectId,
+   ref: "User",
+   required: true,
+  },
   firstName: {
     type: String,
     required: [true, "First name is required"],

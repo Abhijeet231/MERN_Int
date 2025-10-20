@@ -61,7 +61,8 @@ export const uploadAndDistribute = asyncHandler(async (req, res) => {
   const totalAgents = allAgents.length;
   const distLists = cleanedData.map((row, index) => ({
     ...row,
-    agentId: allAgents[index % totalAgents]._id, 
+    agentId: allAgents[index % totalAgents]._id,  // distribute among agents
+    creatorId: req.user._id, // the user who uploaded 
   }));
 
   // Insert all records into DistList collection

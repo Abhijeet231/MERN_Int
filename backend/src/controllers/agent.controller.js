@@ -49,7 +49,7 @@ export const createAgent = asyncHandler(async (req, res) => {
   //sending Success response
   return res
     .status(201)
-    .json(new ApiResponse(201, {agent: agentData}, "Agent created successfully"));
+    .json(new ApiResponse(201, {agentData}, "Agent created successfully"));
 });
 
 //Get all agents with their assigned tasks FOR FEATURE
@@ -69,7 +69,7 @@ export const getAllAgents = asyncHandler(async (req, res) => {
     email: agent.email,
     mobile: agent.mobile,
     password: agent.password,
-    assignedTask: agent.assignedTask?.length || 0,
+    taskCount: agent.assignedTask?.length || 0,
     assignedTask: agent.assignedTask,
   }));
 
@@ -83,3 +83,23 @@ export const getAllAgents = asyncHandler(async (req, res) => {
       )
     );
 });
+
+// Get single agent with all details
+export const getSingleAgent = asyncHandler(async(req,res) => {
+  
+  const {id} = req.params;
+
+  //Fetch the specific agent with agent id
+  const agent = await Agent.findById(id).populate("assignedTask");
+
+  //Check if agent exists 
+  if(!agent){
+    throw new ApiError(404,"Agent not Found")
+  };
+
+  res.status(200).json(new ApiResponse(200, {agent},"Agent Fetched successfully"))
+
+
+});
+
+//Delete agent 

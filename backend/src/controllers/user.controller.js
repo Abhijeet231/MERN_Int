@@ -57,7 +57,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   //Returning success response
   return res
     .status(200)
-    .json(new ApiResponse(200, createdUser, "User Registered Successfully"));
+    .json(new ApiResponse(200, {createdUser}, "User Registered Successfully"));
 });
 
 // Login User
@@ -97,7 +97,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json(new ApiResponse(200, loggedInUser, "User LoggedIn SuccessFully"));
+    .json(new ApiResponse(200, {loggedInUser}, "User LoggedIn SuccessFully"));
 });
 
 // Logout User
@@ -135,7 +135,6 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
 // Get Current User with all data
 export const getCurrentUser = asyncHandler(async (req, res) => {
-
   //Finding the user
   const currUser = await User.findById(req.user._id).populate({
     path: "agents",
@@ -150,7 +149,7 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
   // Returning success response
   return res
     .status(200)
-    .json(new ApiResponse(200, currUser, "Current user fetched"));
+    .json(new ApiResponse(200, {currUser}, "Current user fetched"));
 });
 
 // Refresh Access Token
