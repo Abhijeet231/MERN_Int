@@ -5,7 +5,6 @@ import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ProtectedRoutes } from "@/components/auth/ProtectedRoutes.jsx";
 import { Error } from "@/pages/Error.jsx";
-import AgentCard from "./components/agents/AgentCard";
 import AgentDetail from "./components/agents/AgentDetail";
 import CreateAgentForm from "./components/agents/CreateAgentForm";
 
