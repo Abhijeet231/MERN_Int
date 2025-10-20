@@ -3,44 +3,46 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 //User Schema
- const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Name is required"],
-    trim: true
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [5, "password must be at least 5 characters long"],
+    },
+    refreshToken: String,
   },
-  email: {
-    type: String,
-    required: [true, "Email is required"],
-    unique: true,
-    lowercase: true,
-    match: [/^\S+@\S+\.\S+$/, "Please enter a valid email address"],
-  },
-  password: {
-    type: String,
-    required: [true, "Password is required"],
-    minlength: [5, "password must be at least 5 characters long"],
-  },
-  refreshToken: String,
-}, 
-{
-  toJSON: {virtuals: true},
-  toObject: {virtuals: true}
-});
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 
 //Virtual: to get all agents created by this user
 userSchema.virtual("agents", {
   ref: "Agent",
   localField: "_id",
   foreignField: "userId",
-})
+});
 
 // Virtual field for created lists
 userSchema.virtual("distList", {
   ref: "distList",
-  localField:"_id",
-  foreignField: "creatorId"
-})
+  localField: "_id",
+  foreignField: "creatorId",
+});
 
 //Hashing password before saving
 userSchema.pre("save", async function (next) {
@@ -50,12 +52,10 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-
 //Method to compare passwords
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
-
 
 //Generating AccessToken
 userSchema.methods.generateAccessToken = function () {
@@ -72,7 +72,6 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 
-
 //Generating RefreshToken
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
@@ -85,7 +84,6 @@ userSchema.methods.generateRefreshToken = function () {
     }
   );
 };
-
 
 //Creating User model
 export const User = mongoose.model("User", userSchema);

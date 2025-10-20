@@ -23,7 +23,7 @@ export const createAgent = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Agent already exists");
   }
 
-  // Fetching logged-in user 
+  // Fetching logged-in user
   const currUserId = req.user._id;
 
   //Creating new agent
@@ -32,7 +32,7 @@ export const createAgent = asyncHandler(async (req, res) => {
     email: trimmedEmail,
     mobile: trimmedMobile,
     password,
-    userId: currUserId
+    userId: currUserId,
   });
 
   //Sending response with all agent info including password
@@ -43,13 +43,12 @@ export const createAgent = asyncHandler(async (req, res) => {
     mobile: newAgent.mobile,
     password: newAgent.password,
     userId: newAgent.userId,
-    
   };
 
   //sending Success response
   return res
     .status(201)
-    .json(new ApiResponse(201, {agentData}, "Agent created successfully"));
+    .json(new ApiResponse(201, { agentData }, "Agent created successfully"));
 });
 
 //Get all agents with their assigned tasks FOR FEATURE
@@ -85,21 +84,18 @@ export const getAllAgents = asyncHandler(async (req, res) => {
 });
 
 // Get single agent with all details
-export const getSingleAgent = asyncHandler(async(req,res) => {
-  
-  const {id} = req.params;
+export const getSingleAgent = asyncHandler(async (req, res) => {
+  const { id } = req.params;
 
   //Fetch the specific agent with agent id
   const agent = await Agent.findById(id).populate("assignedTask");
 
-  //Check if agent exists 
-  if(!agent){
-    throw new ApiError(404,"Agent not Found")
-  };
+  //Check if agent exists
+  if (!agent) {
+    throw new ApiError(404, "Agent not Found");
+  }
 
-  res.status(200).json(new ApiResponse(200, {agent},"Agent Fetched successfully"))
-
-
+  res
+    .status(200)
+    .json(new ApiResponse(200, { agent }, "Agent Fetched successfully"));
 });
-
-//Delete agent 

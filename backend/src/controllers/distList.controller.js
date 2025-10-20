@@ -5,8 +5,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-
-
 export const uploadAndDistribute = asyncHandler(async (req, res) => {
   //  Ensure a file is uploaded
   if (!req.file) {
@@ -20,7 +18,10 @@ export const uploadAndDistribute = asyncHandler(async (req, res) => {
     .toLowerCase();
 
   if (!validExtensions.includes(ext)) {
-    throw new ApiError(400, "Invalid file format. Only CSV, XLSX, and XLS are allowed.");
+    throw new ApiError(
+      400,
+      "Invalid file format. Only CSV, XLSX, and XLS are allowed."
+    );
   }
 
   // Read and parse the file using SheetJS
@@ -31,7 +32,7 @@ export const uploadAndDistribute = asyncHandler(async (req, res) => {
   const sheet = mainFile.Sheets[sheetName];
 
   // Converting sheets to json
-  const rows = XLSX.utils.sheet_to_json(sheet, {defval: ""});
+  const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
   // Validate parsed data
   if (!rows.length) {
@@ -40,8 +41,8 @@ export const uploadAndDistribute = asyncHandler(async (req, res) => {
 
   // Normalize and clean data
   const cleanedData = rows
-    .filter(row => row.firstName && row.phone) // Must have these fields
-    .map(row => ({
+    .filter((row) => row.firstName && row.phone) // Must have these fields
+    .map((row) => ({
       firstName: String(row.firstName).trim(),
       phone: String(row.phone).trim(),
       notes: row.notes ? String(row.notes).trim() : "",
@@ -52,7 +53,7 @@ export const uploadAndDistribute = asyncHandler(async (req, res) => {
   }
 
   //Fetch all agents from DB which are created by the current user
-  const allAgents = await Agent.find({userId: req.user._id});
+  const allAgents = await Agent.find({ userId: req.user._id });
   if (allAgents.length === 0) {
     throw new ApiError(400, "No agents found to distribute lists.");
   }
@@ -61,8 +62,8 @@ export const uploadAndDistribute = asyncHandler(async (req, res) => {
   const totalAgents = allAgents.length;
   const distLists = cleanedData.map((row, index) => ({
     ...row,
-    agentId: allAgents[index % totalAgents]._id,  // distribute among agents
-    creatorId: req.user._id, // the user who uploaded 
+    agentId: allAgents[index % totalAgents]._id, // distribute among agents
+    creatorId: req.user._id, // the user who uploaded
   }));
 
   // Insert all records into DistList collection

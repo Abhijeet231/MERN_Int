@@ -59,7 +59,9 @@ export const registerUser = asyncHandler(async (req, res) => {
   //Returning success response
   return res
     .status(200)
-    .json(new ApiResponse(200, {createdUser}, "User Registered Successfully"));
+    .json(
+      new ApiResponse(200, { createdUser }, "User Registered Successfully")
+    );
 });
 
 // Login User
@@ -99,7 +101,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
-    .json(new ApiResponse(200, {loggedInUser}, "User LoggedIn SuccessFully"));
+    .json(new ApiResponse(200, { loggedInUser }, "User LoggedIn SuccessFully"));
 });
 
 // Logout User
@@ -151,40 +153,41 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
   // Returning success response
   return res
     .status(200)
-    .json(new ApiResponse(200, {currUser}, "Current user fetched"));
+    .json(new ApiResponse(200, { currUser }, "Current user fetched"));
 });
 
 // Delete User with all realted information
-export const deleteUser = asyncHandler(async(req,res) => {
-    const user = await User.findById(req.user._id);
+export const deleteUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
 
-    if(!user) {
-      throw new ApiError(404, "user not found");
-    }
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
 
-    // fetching  all related info and deleting them
-     await Agent.deleteMany({userId: user._id});
-     await DistList.deleteMany({creatorId: user._id});
+  // fetching  all related info and deleting them
+  await Agent.deleteMany({ userId: user._id });
+  await DistList.deleteMany({ creatorId: user._id });
 
-    //Deleting the user
-    const deletedUser = await User.findByIdAndDelete(user._id);
+  //Deleting the user
+  const deletedUser = await User.findByIdAndDelete(user._id);
 
-    //Clearing cookies
-    res.clearCookie("accessToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict"
-    });
+  //Clearing cookies
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
 
-      res.clearCookie("refreshToken", {
-        httpOnly: true, 
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
-    });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
 
-    return res.status(200).json(new ApiResponse(200, {}, "User Deleted Successfully"))
-   
-})
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "User Deleted Successfully"));
+});
 
 // Refresh Access Token (currently not in use)
 export const refreshAccessToken = asyncHandler(async (req, res) => {
